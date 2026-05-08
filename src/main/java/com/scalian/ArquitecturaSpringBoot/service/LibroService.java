@@ -3,6 +3,7 @@ package com.scalian.ArquitecturaSpringBoot.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.scalian.ArquitecturaSpringBoot.model.dto.LibroDTO;
@@ -22,8 +23,8 @@ public class LibroService {
         return libroRepository.save(libro);
     }
 
-    public List<LibroDTO> obtenerLibros() {
-        List<Libro> libros = libroRepository.findAll();
+    public List<LibroDTO> obtenerLibros(Pageable pageable) {
+        List<Libro> libros = libroRepository.findAll(pageable).getContent();
         return libros.stream()
                 .map(libro -> new LibroDTO(libro.getTitulo(), libro.getAutor(), libro.getPaginas()))
                 .collect(Collectors.toList());
