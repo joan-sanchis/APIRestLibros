@@ -86,4 +86,85 @@ public class LibroControllerTest {
                 .andExpect(jsonPath("$[1].titulo").value("The Clean Coder"));
     }
 
+    @Test
+    public void getLibrosRetorna200ConPaginable() throws Exception {
+        // Arrange
+        List<LibroDTO> libros = List.of(
+                new LibroDTO("El Quijote", "Miguel de Cervantes", 863),
+                new LibroDTO("Don Juan Tenorio", "José Zorrilla", 200));
+        when(libroService.obtenerLibros(any())).thenReturn(libros);
+
+        // Act + Assert
+        mockMvc.perform(get("/api/libros"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].titulo").value("El Quijote"))
+                .andExpect(jsonPath("$[1].titulo").value("Don Juan Tenorio"));
+
+        verify(libroService).obtenerLibros(any());
+    }
+
+    @Test
+    public void getLibrosMayoresRetorna200() throws Exception {
+        // Arrange
+        int paginas = 500;
+        List<LibroDTO> libros = List.of(
+                new LibroDTO("El Quijote", "Miguel de Cervantes", 863),
+                new LibroDTO("Cien años de soledad", "Gabriel García Márquez", 417));
+        when(libroService.obtenerLibrosMayores(paginas)).thenReturn(libros);
+
+        // Act + Assert
+        mockMvc.perform(get("/api/libros/mayores")
+                .param("paginas", String.valueOf(paginas)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].titulo").value("El Quijote"))
+                .andExpect(jsonPath("$[0].paginas").value(863));
+
+        verify(libroService).obtenerLibrosMayores(paginas);
+    }
+
+    @Test
+    public void getLibrosBuscarSinResultadosRetorna200VacioOK() throws Exception {
+        // Arrange
+        String autor = "noexiste";
+        when(libroService.buscarLibrosPorAutor(autor)).thenReturn(List.of());
+
+        // Act + Assert
+        mockMvc.perform(get("/api/libros/buscar")
+                .param("autor", autor))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(0));
+        }
+
+        @Test
+        public void getLibrosMayoresdosSinResultadosRetorna200Empty() throws Exception {
+                // Arrange
+                int paginas = 999;
+                when(libroService.obtenerLibrosMayores(paginas)).thenReturn(List.of());
+
+                // Act + Assert
+                mockMvc.perform(get("/api/libros/mayores")
+                                .param("paginas", String.valueOf(paginas)))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.length()").value(0));
+
+                verify(libroService).obtenerLibrosMayores(paginas);
+        }
+
+        @Test
+        public void getLibrosConPaginableConParametros() throws Exception {
+                // Arrange
+                List<LibroDTO> libros = List.of(
+                                new LibroDTO("Prueba", "Autor Prueba", 100));
+                when(libroService.obtenerLibros(any())).thenReturn(libros);
+
+                // Act + Assert
+                mockMvc.perform(get("/api/libros")
+                                .param("page", "0")
+                                .param("size", "20"))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.length()").value(1));
+        }
+
 }
