@@ -18,14 +18,18 @@ import com.scalian.ArquitecturaSpringBoot.service.LibroService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
+
 @RestController
-@RequestMapping("/apit/libros")
+@RequestMapping("/api/libros")
 @AllArgsConstructor
 public class LibroController {
 
     private final LibroService libroService;
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public Libro crearLibro(@Valid @RequestBody LibroDTO libro) {
         return libroService.crearLibro(libro);
     }
